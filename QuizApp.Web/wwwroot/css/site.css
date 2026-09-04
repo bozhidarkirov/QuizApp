@@ -289,3 +289,17 @@ h1, h2, h3, h4, h5, h6 {
     .form-floating > label::after {
         background-color: transparent !important;
     }
+
+.list-group-item {
+    background-color: var(--dt-surface) !important;
+    border-color: var(--dt-border) !important;
+    color: var(--dt-text-primary) !important;
+}
+
+.list-group-item-action:hover {
+    background-color: var(--dt-surface-2) !important;
+}
+
+.list-group-numbered > .list-group-item::before {
+    color: var(--dt-text-muted) !important;
+}

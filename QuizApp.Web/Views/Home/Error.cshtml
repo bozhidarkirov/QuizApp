@@ -1,0 +1,18 @@
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = "Грешка";
+}
+
+<div style="text-align: center; padding: 4rem 0;">
+    <p style="font-size: 4rem; font-weight: 600; color: var(--dt-text-muted); margin-bottom: 0;">500</p>
+    <h2 style="margin-bottom: 0.5rem;">Възникна неочаквана грешка</h2>
+    <p style="color: var(--dt-text-secondary); margin-bottom: 2rem;">Опитай отново, или се върни към началната страница.</p>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Обратно към началото</a>
+
+    @if (Model?.ShowRequestId == true)
+    {
+        <p style="color: var(--dt-text-muted); font-size: 12px; margin-top: 2rem;">
+            <strong>Request ID:</strong> @Model.RequestId
+        </p>
+    }
+</div>

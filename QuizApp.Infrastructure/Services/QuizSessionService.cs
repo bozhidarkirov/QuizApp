@@ -270,4 +270,13 @@ public class QuizSessionService : IQuizSessionService
             await _context.SaveChangesAsync();
         }
     }
+    public async Task<List<QuizSession>> GetSessionHistoryByUserAsync(string userId)
+    {
+        return await _context.QuizSessions
+            .Where(s => s.HostUserId == userId && s.Status == SessionStatus.Finished)
+            .Include(s => s.Quiz)
+            .Include(s => s.Participants)
+            .OrderByDescending(s => s.EndedAt)
+            .ToListAsync();
+    }
 }

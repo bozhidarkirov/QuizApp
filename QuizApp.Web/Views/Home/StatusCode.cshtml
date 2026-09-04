@@ -1,0 +1,25 @@
+﻿@{
+    var code = ViewBag.StatusCode as int? ?? 500;
+    ViewData["Title"] = "Грешка";
+
+    string title = code switch
+    {
+        404 => "Страницата не е намерена",
+        403 => "Нямаш достъп",
+        _ => "Възникна грешка"
+    };
+
+    string message = code switch
+    {
+        404 => "Страницата, която търсиш, не съществува или е преместена.",
+        403 => "Нямаш необходимите права за достъп до тази страница.",
+        _ => "Нещо се обърка. Опитай отново по-късно."
+    };
+}
+
+<div style="text-align: center; padding: 4rem 0;">
+    <p style="font-size: 4rem; font-weight: 600; color: var(--dt-text-muted); margin-bottom: 0;">@code</p>
+    <h2 style="margin-bottom: 0.5rem;">@title</h2>
+    <p style="color: var(--dt-text-secondary); margin-bottom: 2rem;">@message</p>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Обратно към началото</a>
+</div>

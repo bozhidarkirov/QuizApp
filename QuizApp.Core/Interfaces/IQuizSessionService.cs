@@ -18,4 +18,6 @@ public interface IQuizSessionService
     Task<int> GetAnsweredCountAsync(int sessionId, int questionId);
     Task<int> GetParticipantCountAsync(int sessionId);
     Task RecordMissedAnswersAsync(int sessionId, int questionId);
+
+    Task<List<QuizSession>> GetSessionHistoryByUserAsync(string userId);
 }

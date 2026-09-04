@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using QuizApp.Core.Interfaces;
 using QuizApp.Core.Models;
+using QuizApp.Web.ViewModels;
 
 namespace QuizApp.Web.Controllers;
 
@@ -94,5 +95,49 @@ public class SessionController : Controller
 
         ViewBag.Nickname = nickname;
         return View(session);
+    }
+
+    // GET: /Session/History  -- Teacher вижда своите изиграни Live сесии
+    [Authorize(Roles = "Teacher,Admin")]
+    public async Task<IActionResult> History()
+    {
+        var userId = _userManager.GetUserId(User)!;
+        var sessions = await _sessionService.GetSessionHistoryByUserAsync(userId);
+
+        var model = sessions.Select(s => new SessionHistoryItemViewModel
+        {
+            Id = s.Id,
+            QuizTitle = s.Quiz.Title,
+            EndedAt = s.EndedAt,
+            ParticipantCount = s.Participants.Count
+        }).ToList();
+
+        return View(model);
+    }
+
+    // GET: /Session/HistoryDetail/{id}  -- детайлна класация от конкретна сесия
+    [Authorize(Roles = "Teacher,Admin")]
+    public async Task<IActionResult> HistoryDetail(int id)
+    {
+        var session = await _sessionService.GetWithParticipantsAsync(id);
+        if (session is null)
+            return NotFound();
+
+        var userId = _userManager.GetUserId(User);
+        if (session.HostUserId != userId && !User.IsInRole("Admin"))
+            return Forbid();
+
+        var model = new SessionHistoryDetailViewModel
+        {
+            QuizTitle = session.Quiz.Title,
+            StartedAt = session.StartedAt,
+            EndedAt = session.EndedAt,
+            Leaderboard = session.Participants
+                .OrderByDescending(p => p.TotalScore)
+                .Select(p => new LeaderboardEntryViewModel { Nickname = p.Nickname, TotalScore = p.TotalScore })
+                .ToList()
+        };
+
+        return View(model);
     }
 }

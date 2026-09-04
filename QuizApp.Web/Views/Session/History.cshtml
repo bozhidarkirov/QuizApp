@@ -1,0 +1,41 @@
+﻿@model List<QuizApp.Web.ViewModels.SessionHistoryItemViewModel>
+
+@{
+    ViewData["Title"] = "История на сесиите";
+}
+
+<div style="padding: 1.5rem 0;">
+    <h2 style="margin-bottom: 0.25rem;">История на Live сесиите</h2>
+    <p style="color: var(--dt-text-secondary);">Прегледай резултатите от вече изиграни сесии</p>
+</div>
+
+@if (!Model.Any())
+{
+    <p style="color: var(--dt-text-muted);">Все още няма изиграни сесии.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Викторина</th>
+                <th>Участници</th>
+                <th>Дата</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var session in Model)
+            {
+                <tr>
+                    <td>@session.QuizTitle</td>
+                    <td>@session.ParticipantCount</td>
+                    <td>@(session.EndedAt?.ToString("dd.MM.yyyy HH:mm") ?? "—")</td>
+                    <td>
+                        <a asp-action="HistoryDetail" asp-route-id="@session.Id" class="btn btn-sm btn-secondary">Виж класация</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

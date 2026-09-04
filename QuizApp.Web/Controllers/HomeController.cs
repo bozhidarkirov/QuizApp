@@ -28,5 +28,12 @@ namespace QuizApp.Web.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        [Route("Home/StatusCode/{code:int}")]
+        public IActionResult StatusCode(int code)
+        {
+            ViewBag.StatusCode = code;
+            return View("StatusCode");
+        }
     }
 }
