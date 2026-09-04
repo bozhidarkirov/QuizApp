@@ -1,0 +1,56 @@
+﻿@model QuizApp.Web.ViewModels.CreateQuestionViewModel
+
+@{
+    ViewData["Title"] = "Добави въпрос";
+}
+
+<h2>Нов въпрос</h2>
+
+<form asp-action="AddQuestion" method="post">
+    <input type="hidden" asp-for="QuizId" />
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Text" class="form-label">Текст на въпроса</label>
+        <textarea asp-for="Text" class="form-control" rows="2"></textarea>
+        <span asp-validation-for="Text" class="text-danger"></span>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label asp-for="TimeLimitSeconds" class="form-label">Време (сек, по избор — ако е празно, ползва default за викторината)</label>
+            <input asp-for="TimeLimitSeconds" type="number" class="form-control" />
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Points" class="form-label">Точки</label>
+            <input asp-for="Points" type="number" class="form-control" />
+        </div>
+    </div>
+
+    <hr style="border-color: var(--dt-border);" />
+    <h5 style="margin-bottom: 1rem;">Отговори <span style="color: var(--dt-text-muted); font-weight: 400; font-size: 13px;">(маркирай верния)</span></h5>
+
+    <div class="mb-2 d-flex align-items-center gap-2" style="background: var(--dt-surface-2); border-radius: 10px; padding: 8px 12px;">
+        <input type="radio" name="CorrectAnswerIndex" value="1" required style="accent-color: var(--dt-teal);" />
+        <input asp-for="Answer1" class="form-control" placeholder="Отговор 1" style="background: transparent; border: none;" />
+    </div>
+    <div class="mb-2 d-flex align-items-center gap-2" style="background: var(--dt-surface-2); border-radius: 10px; padding: 8px 12px;">
+        <input type="radio" name="CorrectAnswerIndex" value="2" style="accent-color: var(--dt-teal);" />
+        <input asp-for="Answer2" class="form-control" placeholder="Отговор 2" style="background: transparent; border: none;" />
+    </div>
+    <div class="mb-2 d-flex align-items-center gap-2" style="background: var(--dt-surface-2); border-radius: 10px; padding: 8px 12px;">
+        <input type="radio" name="CorrectAnswerIndex" value="3" style="accent-color: var(--dt-teal);" />
+        <input asp-for="Answer3" class="form-control" placeholder="Отговор 3 (по избор)" style="background: transparent; border: none;" />
+    </div>
+    <div class="mb-2 d-flex align-items-center gap-2" style="background: var(--dt-surface-2); border-radius: 10px; padding: 8px 12px;">
+        <input type="radio" name="CorrectAnswerIndex" value="4" style="accent-color: var(--dt-teal);" />
+        <input asp-for="Answer4" class="form-control" placeholder="Отговор 4 (по избор)" style="background: transparent; border: none;" />
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

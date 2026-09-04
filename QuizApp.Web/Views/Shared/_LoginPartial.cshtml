@@ -1,0 +1,60 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+@{
+    string? displayName = null;
+    if (SignInManager.IsSignedIn(User))
+    {
+        var currentUser = await UserManager.GetUserAsync(User);
+        var isAdmin = User.IsInRole("Admin");
+        displayName = isAdmin
+            ? "Админ"
+            : (!string.IsNullOrEmpty(currentUser?.FirstName) ? currentUser.FirstName : UserManager.GetUserName(User));
+    }
+}
+
+<ul class="navbar-nav">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item dropdown-hover" style="position: relative;">
+            <span class="nav-link text-dark" style="cursor: pointer;">Здравей, @displayName! ▾</span>
+            <div class="dropdown-hover-menu" style="display: none; position: absolute; right: 0; top: 100%; background: var(--dt-surface); border: 1px solid var(--dt-border); border-radius: 10px; min-width: 180px; padding: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                <a asp-area="Identity" asp-page="/Account/Manage/Index" class="dropdown-item-custom">Редактирай профил</a>
+                <form id="logoutForm" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+                    <button id="logout" type="submit" class="dropdown-item-custom" style="width: 100%; text-align: left; background: none; border: none;">Изход</button>
+                </form>
+            </div>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Регистрация</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Вход</a>
+        </li>
+    }
+</ul>
+
+<style>
+    .dropdown-hover:hover .dropdown-hover-menu {
+        display: block !important;
+    }
+
+    .dropdown-item-custom {
+        display: block;
+        padding: 8px 12px;
+        border-radius: 6px;
+        color: var(--dt-text-primary);
+        font-size: 14px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+        .dropdown-item-custom:hover {
+            background-color: var(--dt-surface-2);
+            color: var(--dt-text-primary);
+        }
+</style>

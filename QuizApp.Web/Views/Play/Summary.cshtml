@@ -1,0 +1,15 @@
+﻿@model QuizApp.Web.ViewModels.PlaySummaryViewModel
+
+@{
+    ViewData["Title"] = "Обобщение";
+}
+
+<div style="text-align: center; padding: 3rem 0;">
+    <h2>@Model.QuizTitle</h2>
+    <p style="font-size: 3rem; font-weight: 600; margin: 1.5rem 0 0.25rem; color: var(--dt-purple-light);">@Model.Score / @Model.TotalQuestions</p>
+    <p style="color: var(--dt-text-muted);">верни отговори</p>
+
+    <a asp-controller="Student" asp-action="Index" class="btn btn-primary btn-lg mt-4">
+        Обратно към викторините
+    </a>
+</div>

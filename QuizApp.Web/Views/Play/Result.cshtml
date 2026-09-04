@@ -1,0 +1,35 @@
+﻿@model QuizApp.Web.ViewModels.PlayResultViewModel
+
+@{
+    ViewData["Title"] = "Резултат";
+}
+
+<div style="text-align: center; padding: 3rem 0;">
+    @if (Model.IsCorrect)
+    {
+        <div style="width: 72px; height: 72px; border-radius: 50%; background: var(--dt-teal-bg); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--dt-teal)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <h3 style="color: var(--dt-teal);">Вярно!</h3>
+    }
+    else
+    {
+        <div style="width: 72px; height: 72px; border-radius: 50%; background: rgba(237, 147, 177, 0.15); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--dt-pink)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </div>
+        <h3 style="color: var(--dt-pink);">Грешно</h3>
+        @if (Model.CorrectAnswerText is not null)
+        {
+            <p style="color: var(--dt-text-secondary);">Верният отговор беше: <strong>@Model.CorrectAnswerText</strong></p>
+        }
+    }
+
+    <p style="margin-top: 1rem; color: var(--dt-text-muted);">Въпрос @Model.QuestionNumber от @Model.TotalQuestions</p>
+
+    <a asp-controller="Play" asp-action="Next"
+       asp-route-attemptId="@Model.AttemptId"
+       asp-route-currentIndex="@(Model.QuestionNumber - 1)"
+       class="btn btn-primary btn-lg mt-3">
+        @(Model.IsLastQuestion ? "Виж резултата" : "Следващ въпрос")
+    </a>
+</div>

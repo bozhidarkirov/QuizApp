@@ -1,0 +1,41 @@
+﻿@{
+    ViewData["Title"] = "Присъедини се";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Присъедини се към викторина</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <div class="container py-5" style="max-width: 400px">
+        <h1 class="text-center mb-4">Присъедини се</h1>
+
+        @if (ViewBag.Error is not null)
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+
+        <form asp-action="Join" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label class="form-label">PIN код</label>
+                <input type="text" name="pin" class="form-control form-control-lg text-center" placeholder="123456" maxlength="6" required autofocus />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Твоето име</label>
+                <input type="text" name="nickname" class="form-control form-control-lg" placeholder="Име" maxlength="50" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100">Влез</button>
+        </form>
+    </div>
+</body>
+</html>

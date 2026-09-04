@@ -1,0 +1,124 @@
+﻿@model QuizApp.Core.Models.QuizSession
+
+@{
+    ViewData["Title"] = "Live сесия";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="utf-8" />
+    <title>Live сесия - @Model.Quiz.Title</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <script src="~/lib/microsoft-signalr/signalr.min.js"></script>
+</head>
+<body>
+    <div class="container py-5 text-center">
+
+        <div id="lobbyView">
+            <h1>@Model.Quiz.Title</h1>
+            <h2 class="display-1 fw-bold text-primary">@Model.PinCode</h2>
+            <p class="text-muted">Учениците въвеждат този код на <strong>/Session/Join</strong></p>
+
+            <h4 class="mt-4">Присъединили се (<span id="participantCount">0</span>)</h4>
+            <div id="participantList" class="d-flex flex-wrap justify-content-center gap-2 my-3"></div>
+
+            <button id="startBtn" class="btn btn-success btn-lg mt-3">Старт на играта</button>
+        </div>
+
+        <div id="questionView" style="display:none">
+            <h3 id="questionText" class="mb-4"></h3>
+            <div class="display-4 fw-bold" id="timer">--</div>
+            <p class="mt-3">Отговорили: <span id="answeredCount">0</span> / <span id="totalParticipants">0</span></p>
+            <button id="endBtn" class="btn btn-outline-danger btn-lg mt-4">■ Прекрати играта</button>
+        </div>
+
+        <div id="resultsView" style="display:none">
+            <h2>Класация</h2>
+            <ol id="leaderboardList" class="list-group list-group-numbered w-50 mx-auto text-start"></ol>
+            <a href="/Quiz" class="btn btn-secondary mt-4">Обратно към викторините</a>
+        </div>
+
+    </div>
+
+    <script>
+        const sessionId = @Model.Id;
+        let participantsAnswered = 0;
+        let totalParticipants = 0;
+        let currentTimerInterval = null;
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/quizhub")
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("ParticipantJoined", (participantId, nickname) => {
+            totalParticipants++;
+            document.getElementById("participantCount").innerText = totalParticipants;
+            const badge = document.createElement("span");
+            badge.className = "badge bg-secondary fs-6 p-2";
+            badge.innerText = nickname;
+            document.getElementById("participantList").appendChild(badge);
+        });
+
+        connection.on("NewQuestion", (question) => {
+            document.getElementById("lobbyView").style.display = "none";
+            document.getElementById("resultsView").style.display = "none";
+            document.getElementById("questionView").style.display = "block";
+
+            document.getElementById("questionText").innerText = question.text;
+            document.getElementById("totalParticipants").innerText = totalParticipants;
+            document.getElementById("answeredCount").innerText = "0";
+            participantsAnswered = 0;
+
+               if (currentTimerInterval) clearInterval(currentTimerInterval);
+
+        let timeLeft = question.timeLimit;
+        document.getElementById("timer").innerText = timeLeft;
+        currentTimerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById("timer").innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(currentTimerInterval);
+                connection.invoke("NextQuestion", sessionId);
+            }
+        }, 1000);
+        });
+
+                connection.on("ParticipantAnswered", (answeredCount, totalCount) => {
+            document.getElementById("answeredCount").innerText = answeredCount;
+            document.getElementById("totalParticipants").innerText = totalCount;
+        });
+
+        connection.on("GameEnded", (leaderboard) => {
+            document.getElementById("questionView").style.display = "none";
+            document.getElementById("resultsView").style.display = "block";
+
+            const list = document.getElementById("leaderboardList");
+            list.innerHTML = "";
+            leaderboard.forEach(p => {
+                const li = document.createElement("li");
+                li.className = "list-group-item d-flex justify-content-between";
+                li.innerHTML = `<span>${p.nickname}</span><strong>${p.totalScore} т.</strong>`;
+                list.appendChild(li);
+            });
+        });
+
+        connection.start().then(() => {
+            connection.invoke("JoinHostGroup", sessionId);
+        });
+
+        document.getElementById("startBtn").addEventListener("click", () => {
+            connection.invoke("StartGame", sessionId);
+        });
+
+                document.getElementById("endBtn").addEventListener("click", () => {
+            if (confirm("Сигурни ли сте, че искате да спрете играта?")) {
+                connection.invoke("EndGame", sessionId);
+            }
+        });
+    </script>
+</body>
+</html>

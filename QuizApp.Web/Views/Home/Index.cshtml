@@ -1,0 +1,69 @@
+﻿@{
+    ViewData["Title"] = "Начало";
+}
+
+<div style="padding: 3rem 0 2rem; text-align: center;">
+    <h1 style="font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem;">QuizApp</h1>
+    <p style="color: var(--dt-text-secondary); font-size: 1.1rem; margin-bottom: 2rem;">
+        Образователна платформа за викторини — на живо или в собствено темпо
+    </p>
+</div>
+
+<div class="row g-3 justify-content-center">
+    @if (User.Identity!.IsAuthenticated)
+    {
+        <div class="col-md-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Викторини за упражнение</h5>
+                    <p class="card-text" style="color: var(--dt-text-secondary);">
+                        Реши публикувана викторина в свое собствено темпо, без ограничение във времето.
+                    </p>
+                    <a asp-controller="Student" asp-action="Index" class="btn btn-primary">Разгледай</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Присъедини се към Live</h5>
+                    <p class="card-text" style="color: var(--dt-text-secondary);">
+                        Имаш PIN код от учител? Присъедини се към сесия на живо.
+                    </p>
+                    <a asp-controller="Session" asp-action="Join" class="btn btn-success">Въведи PIN</a>
+                </div>
+            </div>
+        </div>
+
+        @if (User.IsInRole("Teacher") || User.IsInRole("Admin"))
+        {
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Управлявай викторини</h5>
+                        <p class="card-text" style="color: var(--dt-text-secondary);">
+                            Създай нова викторина или стартирай Live сесия с вече готова.
+                        </p>
+                        <a asp-controller="Quiz" asp-action="Index" class="btn btn-secondary">Отвори</a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-md-6 text-center">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Добре дошъл</h5>
+                    <p class="card-text" style="color: var(--dt-text-secondary);">
+                        Регистрирай се или влез, за да започнеш да решаваш или създаваш викторини.
+                    </p>
+                    <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary me-2">Регистрация</a>
+                    <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-secondary">Вход</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

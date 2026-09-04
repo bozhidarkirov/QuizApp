@@ -1,0 +1,87 @@
+﻿@model List<QuizApp.Web.ViewModels.QuizListItemViewModel>
+
+@{
+    ViewData["Title"] = "Всички викторини";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Всички викторини</h2>
+    <a asp-action="Create" class="btn btn-primary">+ Нова викторина</a>
+</div>
+
+@if (TempData["Success"] is not null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] is not null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (!Model.Any())
+{
+    <p class="text-muted">Все още няма създадени викторини.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Заглавие</th>
+                <th>Категория</th>
+                <th>Въпроси</th>
+                <th>Статус</th>
+                <th>Създадена от</th>
+                <th>Създадена на</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var quiz in Model)
+            {
+                <tr>
+                    <td>@quiz.Title</td>
+                    <td>@quiz.CategoryName</td>
+                    <td>@quiz.QuestionCount</td>
+                    <td>
+                        @if (quiz.IsPublished)
+                        {
+                            <span class="badge bg-success">Публикувана</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Чернова</span>
+                        }
+                    </td>
+                    <td>
+                        @quiz.CreatedByName
+                        @if (quiz.IsOwner)
+                        {
+                            <span class="badge bg-secondary">Твоя</span>
+                        }
+                    </td>
+                    <td>@quiz.CreatedAt.ToString("dd.MM.yyyy")</td>
+                    <td>
+                        @if (quiz.IsOwner || User.IsInRole("Admin"))
+                        {
+                            <a asp-action="Edit" asp-route-id="@quiz.Id" class="btn btn-sm btn-secondary">Редактирай</a>
+                        }
+                        @if (quiz.IsPublished)
+                        {
+                            <form asp-controller="Session" asp-action="Host" asp-route-quizId="@quiz.Id" method="post" style="display:inline">
+                                <button type="submit" class="btn btn-sm btn-primary">▶ Live</button>
+                            </form>
+                        }
+                        @if (quiz.IsOwner || User.IsInRole("Admin"))
+                        {
+                            <form asp-action="Delete" asp-route-id="@quiz.Id" method="post" style="display:inline"
+                                  onsubmit="return confirm('Сигурен ли си, че искаш да изтриеш тази викторина?');">
+                                <button type="submit" class="btn btn-sm btn-danger">Изтрий</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

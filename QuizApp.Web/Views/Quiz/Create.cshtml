@@ -1,0 +1,49 @@
+﻿@model QuizApp.Web.ViewModels.CreateQuizViewModel
+
+@{
+    ViewData["Title"] = "Нова викторина";
+}
+
+<h2>Нова викторина</h2>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label">Заглавие</label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label">Описание</label>
+        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CategoryId" class="form-label">Категория</label>
+        <select asp-for="CategoryId" class="form-select">
+            <option value="">-- Избери категория --</option>
+            @foreach (var cat in Model.Categories)
+            {
+                <option value="@cat.Id">@cat.Name</option>
+            }
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="TimePerQuestion" class="form-label">Време на въпрос (секунди)</label>
+        <input asp-for="TimePerQuestion" type="number" class="form-control" style="max-width: 150px" />
+        <span asp-validation-for="TimePerQuestion" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Създай</button>
+    <a asp-action="Index" class="btn btn-secondary">Отказ</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

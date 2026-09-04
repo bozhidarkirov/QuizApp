@@ -1,0 +1,29 @@
+﻿@model QuizApp.Web.ViewModels.EditUserRolesViewModel
+
+@{
+    ViewData["Title"] = "Редакция на роли";
+}
+
+<div style="padding: 1.5rem 0;">
+    <h2 style="margin-bottom: 0.25rem;">Роли за @Model.Email</h2>
+    <p style="color: var(--dt-text-secondary);">Избери една или повече роли за този акаунт</p>
+</div>
+
+<form asp-action="EditRoles" method="post">
+    <input type="hidden" asp-for="UserId" />
+    <input type="hidden" asp-for="Email" />
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    @for (int i = 0; i < Model.Roles.Count; i++)
+    {
+        <div class="form-check">
+            <input type="hidden" asp-for="Roles[i].RoleName" />
+            <input type="checkbox" class="form-check-input" asp-for="Roles[i].IsSelected" />
+            <label class="form-check-label">@Model.Roles[i].RoleName</label>
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary mt-3">Запази</button>
+    <a asp-action="Index" class="btn btn-secondary mt-3">Отказ</a>
+</form>

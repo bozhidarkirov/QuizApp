@@ -1,0 +1,48 @@
+﻿@model List<QuizApp.Web.ViewModels.CategoryListItemViewModel>
+
+@{
+    ViewData["Title"] = "Категории";
+}
+
+<div class="d-flex justify-content-between align-items-center" style="padding: 1.5rem 0;">
+    <div>
+        <h2 style="margin-bottom: 0.25rem;">Категории</h2>
+        <p style="color: var(--dt-text-secondary); margin-bottom: 0;">Групиране на викторините по тематика</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">+ Нова категория</a>
+</div>
+
+@if (TempData["Success"] is not null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] is not null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Име</th>
+            <th>Викторини с тази категория</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var cat in Model)
+        {
+            <tr>
+                <td>@cat.Name</td>
+                <td>@cat.QuizCount</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@cat.Id" class="btn btn-sm btn-secondary">Редактирай</a>
+                    <form asp-action="Delete" asp-route-id="@cat.Id" method="post" style="display:inline"
+                          onsubmit="return confirm('Изтриване на категорията?');">
+                        <button type="submit" class="btn btn-sm btn-danger">Изтрий</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,40 @@
+﻿@model QuizApp.Web.ViewModels.PlayQuestionViewModel
+
+@{
+    ViewData["Title"] = "Въпрос " + Model.QuestionNumber;
+}
+
+<div style="padding: 1.5rem 0; text-align: center;">
+    <span class="badge bg-secondary">Въпрос @Model.QuestionNumber от @Model.TotalQuestions</span>
+</div>
+
+<h3 style="text-align: center; margin-bottom: 2rem;">@Model.QuestionText</h3>
+
+<form asp-controller="Play" asp-action="Answer" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="attemptId" value="@Model.AttemptId" />
+    <input type="hidden" name="questionId" value="@Model.QuestionId" />
+    <input type="hidden" name="currentIndex" value="@(Model.QuestionNumber - 1)" />
+
+    <div class="row g-2">
+        @{
+            var answerColors = new[] { "#9B8FFF", "#2EE6A8", "#FF8A5C", "#FF6FA8" };
+            var answerDarkColors = new[] { "#1a1445", "#00291f", "#3d1400", "#3d0a24" };
+        }
+        @for (int i = 0; i < Model.Answers.Count; i++)
+        {
+            var answer = Model.Answers[i];
+            var color = answerColors[i % answerColors.Length];
+            var darkColor = answerDarkColors[i % answerDarkColors.Length];
+            <div class="col-md-6">
+                <button type="submit" name="answerId" value="@answer.Id"
+                        class="answer-choice-btn w-100 py-4"
+                        style="border: 2px solid @color; color: @color; background: transparent; border-radius: 12px; font-weight: 500; transition: all 0.15s ease;"
+                        onmouseover="this.style.background='@color'; this.style.color='@darkColor';"
+                        onmouseout="this.style.background='transparent'; this.style.color='@color';">
+                    @answer.Text
+                </button>
+            </div>
+        }
+    </div>
+</form>

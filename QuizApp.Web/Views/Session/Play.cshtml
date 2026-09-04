@@ -1,0 +1,177 @@
+﻿@model QuizApp.Core.Models.QuizSession
+
+@{
+    ViewData["Title"] = "Играя";
+    Layout = null;
+    var nickname = ViewBag.Nickname as string;
+}
+
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Играя - @Model.Quiz.Title</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <script src="~/lib/microsoft-signalr/signalr.min.js"></script>
+    <style>
+        .answer-btn {
+            min-height: 100px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 12px;
+        }
+
+        #A {
+            background-color: #7F77DD;
+            color: #26215C;
+        }
+
+        #B {
+            background-color: #5DCAA5;
+            color: #04342C;
+        }
+
+        #C {
+            background-color: #F0997B;
+            color: #4A1B0C;
+        }
+
+        #D {
+            background-color: #ED93B1;
+            color: #4B1528;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4 text-center">
+
+        <div id="waitingView">
+            <h2>Здравей, @nickname!</h2>
+            <p class="text-muted mt-4">Изчакай учителят да стартира играта...</p>
+            <div class="spinner-border text-primary mt-3" role="status"></div>
+        </div>
+
+        <div id="questionView" style="display:none">
+            <h4 id="questionText" class="mb-3"></h4>
+            <div class="display-6 fw-bold mb-3" id="timer">--</div>
+
+            <div class="row g-2" id="answersGrid">
+                <div class="col-6"><button class="btn answer-btn w-100" id="A" data-index="0"></button></div>
+                <div class="col-6"><button class="btn answer-btn w-100" id="B" data-index="1"></button></div>
+                <div class="col-6"><button class="btn answer-btn w-100" id="C" data-index="2"></button></div>
+                <div class="col-6"><button class="btn answer-btn w-100" id="D" data-index="3"></button></div>
+            </div>
+        </div>
+
+        <div id="answeredView" style="display:none">
+            <h2 class="mt-5">Отговорът е изпратен ✓</h2>
+            <p class="text-muted">Изчакай следващия въпрос...</p>
+        </div>
+
+        <div id="resultView" style="display:none">
+            <h1 id="resultIcon" class="display-1"></h1>
+            <h3 id="resultText"></h3>
+            <p id="resultPoints" class="fs-4"></p>
+        </div>
+
+        <div id="finalView" style="display:none">
+            <h2>Играта приключи!</h2>
+            <p class="fs-4">Твоят резултат: <strong id="finalScore"></strong> точки</p>
+        </div>
+
+    </div>
+
+    <script>
+        const sessionId = @Model.Id;
+        const nickname = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(nickname));
+        let participantId = null;
+        let currentAnswers = [];
+        let questionStartTime = null;
+        let currentTimerInterval = null;
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/quizhub")
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("JoinedSession", (pId, name) => {
+            participantId = pId;
+        });
+
+        connection.on("JoinError", (message) => {
+            alert(message);
+        });
+
+        connection.on("NewQuestion", (question) => {
+            showView("questionView");
+
+            document.getElementById("questionText").innerText = question.text;
+            currentAnswers = question.answers;
+
+            const letters = ["A", "B", "C", "D"];
+            letters.forEach((letter, i) => {
+                const btn = document.getElementById(letter);
+                if (currentAnswers[i]) {
+                    btn.style.display = "block";
+                    btn.innerText = currentAnswers[i].text;
+                    btn.disabled = false;
+                    btn.dataset.answerId = currentAnswers[i].id;
+                } else {
+                    btn.style.display = "none";
+                }
+            });
+
+            questionStartTime = Date.now();
+
+                    if (currentTimerInterval) clearInterval(currentTimerInterval);
+
+        let timeLeft = question.timeLimit;
+        document.getElementById("timer").innerText = timeLeft;
+        currentTimerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById("timer").innerText = timeLeft;
+            if (timeLeft <= 0) clearInterval(currentTimerInterval);
+        }, 1000);
+
+            window.currentQuestionId = question.questionId;
+        });
+
+        connection.on("AnswerResult", (isCorrect, points) => {
+            showView("resultView");
+            document.getElementById("resultIcon").innerText = isCorrect ? "✅" : "❌";
+            document.getElementById("resultText").innerText = isCorrect ? "Вярно!" : "Грешно";
+            document.getElementById("resultPoints").innerText = isCorrect ? `+${points} точки` : "";
+        });
+
+        connection.on("GameEnded", (leaderboard) => {
+            const me = leaderboard.find(p => p.id === participantId);
+            showView("finalView");
+            document.getElementById("finalScore").innerText = me ? me.totalScore : "0";
+        });
+
+        connection.start().then(() => {
+            connection.invoke("JoinSession", sessionId, nickname);
+        });
+
+        document.querySelectorAll(".answer-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const answerId = parseInt(btn.dataset.answerId);
+                const responseTimeMs = Date.now() - questionStartTime;
+
+                document.querySelectorAll(".answer-btn").forEach(b => b.disabled = true);
+
+                connection.invoke("SubmitAnswer", sessionId, participantId, window.currentQuestionId, answerId, responseTimeMs);
+                showView("answeredView");
+            });
+        });
+
+        function showView(viewId) {
+            ["waitingView", "questionView", "answeredView", "resultView", "finalView"].forEach(id => {
+                document.getElementById(id).style.display = (id === viewId) ? "block" : "none";
+            });
+        }
+    </script>
+</body>
+</html>

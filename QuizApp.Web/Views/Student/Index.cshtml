@@ -1,0 +1,47 @@
+﻿@model List<QuizApp.Web.ViewModels.StudentQuizListItemViewModel>
+
+@{
+    ViewData["Title"] = "Викторини";
+}
+
+<div style="padding: 1.5rem 0;">
+    <h2 style="margin-bottom: 0.25rem;">Публикувани викторини</h2>
+    <p style="color: var(--dt-text-secondary); margin-bottom: 1.5rem;">Избери викторина и реши я в свое темпо</p>
+</div>
+
+@if (!Model.Any())
+{
+    <p style="color: var(--dt-text-muted);">Все още няма публикувани викторини.</p>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var quiz in Model)
+        {
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">@quiz.Title</h5>
+                        <p class="card-text" style="color: var(--dt-text-secondary); flex-grow: 1;">@quiz.Description</p>
+
+                        <div class="mb-2">
+                            <span class="badge bg-secondary">@quiz.CategoryName</span>
+                            <span style="font-size: 12px; color: var(--dt-text-muted); margin-left: 6px;">@quiz.QuestionCount въпроса</span>
+                        </div>
+
+                        @if (quiz.LastScore.HasValue)
+                        {
+                            <p style="color: var(--dt-teal); font-size: 13px; margin-bottom: 10px;">
+                                Последен резултат: @quiz.LastScore / @quiz.LastTotalQuestions
+                            </p>
+                        }
+
+                        <a asp-controller="Play" asp-action="Start" asp-route-quizId="@quiz.Id" class="btn btn-primary mt-auto">
+                            @(quiz.LastScore.HasValue ? "Опитай пак" : "Започни")
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
